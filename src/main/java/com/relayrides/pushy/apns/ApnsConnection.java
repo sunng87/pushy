@@ -622,8 +622,12 @@ public class ApnsConnection<T extends ApnsPushNotification> {
 	public synchronized void shutdownGracefully() {
 
 		if (this.connectFuture != null && this.connectFuture.channel() != null) {
-			if (this.connectFuture.channel().pipeline().get(ApnsConnection.PIPELINE_IDLE_STATE_HANDLER) != null) {
-				this.connectFuture.channel().pipeline().remove(ApnsConnection.PIPELINE_IDLE_STATE_HANDLER);
+			try {
+				if (this.connectFuture.channel().pipeline().get(ApnsConnection.PIPELINE_IDLE_STATE_HANDLER) != null) {
+					this.connectFuture.channel().pipeline().remove(ApnsConnection.PIPELINE_IDLE_STATE_HANDLER);
+				}
+			} catch (Exception e) {
+				log.error("Caught exception when removing idle state handler", e);
 			}
 		}
 
