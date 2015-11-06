@@ -30,6 +30,7 @@ package com.relayrides.pushy.apns;
 public class PushManagerConfiguration {
 
 	private int concurrentConnectionCount = 1;
+	private int unwritableConnectionTimeout = 0;
 
 	private ApnsConnectionConfiguration connectionConfiguration = new ApnsConnectionConfiguration();
 	private FeedbackConnectionConfiguration feedbackConfiguration = new FeedbackConnectionConfiguration();
@@ -124,6 +125,24 @@ public class PushManagerConfiguration {
 		}
 
 		this.feedbackConfiguration = feedbackConnectionConfiguration;
+	}
+
+	/**
+	 * Timeout in milliseconds when polling writable connection queue, will restart one of these connections
+	 *
+	 * @return the timeout when polling writable connection queue, will restart one of these connections
+     */
+	public int getUnwritableConnectionTimeout() {
+		return unwritableConnectionTimeout;
+	}
+
+	/**
+	 * Set the timeout when polling writable connection queue, milliseconds
+	 *
+	 * @param unwritableConnectionTimeout
+     */
+	public void setUnwritableConnectionTimeout(int unwritableConnectionTimeout) {
+		this.unwritableConnectionTimeout = unwritableConnectionTimeout;
 	}
 
 	@Override

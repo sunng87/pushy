@@ -33,6 +33,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLContext;
@@ -270,7 +271,23 @@ public class PushManager<T extends ApnsPushNotification> implements ApnsConnecti
 			public void run() {
 				while (dispatchThreadShouldContinue) {
 					try {
-						final ApnsConnection<T> connection = writableConnections.take();
+						final ApnsConnection<T> connection;
+						int unwritableConnectionTimeout = configuration.getUnwritableConnectionTimeout();
+						if (unwritableConnectionTimeout == 0) {
+							connection = writableConnections.take();
+						} else {
+							connection = writableConnections.poll(unwritableConnectionTimeout, TimeUnit.MILLISECONDS);
+							if (connection == null) {
+								if (log.isInfoEnabled() && !activeConnections.isEmpty()) {
+									log.info("Timeout polling for writable connections, restart all active connections");
+								}
+
+								for (ApnsConnection conn: activeConnections) {
+									conn.disconnectGracefully();
+								}
+								continue;
+							}
+						}
 
 						// Immediately put this connection back at the tail of the pool of writable connections; this
 						// helps us rotate through our connections and distribute load.
