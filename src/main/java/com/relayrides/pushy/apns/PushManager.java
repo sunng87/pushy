@@ -289,6 +289,10 @@ public class PushManager<T extends ApnsPushNotification> implements ApnsConnecti
 							}
 						}
 
+						if (connection.isRejectionReceived()){
+							continue;
+						}
+
 						// Immediately put this connection back at the tail of the pool of writable connections; this
 						// helps us rotate through our connections and distribute load.
 						writableConnections.add(connection);
