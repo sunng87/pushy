@@ -649,6 +649,10 @@ public class ApnsConnection<T extends ApnsPushNotification> {
 		}
 	}
 
+	public boolean isRejectionReceived(){
+		return this.rejectionReceived;
+	}
+
 	@Override
 	public String toString() {
 		return "ApnsConnection [name=" + name + "]";
