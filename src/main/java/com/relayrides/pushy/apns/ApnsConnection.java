@@ -42,6 +42,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
@@ -79,6 +80,8 @@ public class ApnsConnection<T extends ApnsPushNotification> {
 
 	private ChannelFuture connectFuture;
 	private volatile boolean handshakeCompleted = false;
+
+	private int gracefulDisconnectRetryCount = 0;
 
 	// We want to start the count at 1 here because the gateway will send back a sequence number of 0 if it doesn't know
 	// which notification failed. This isn't 100% bulletproof (we'll legitimately get back to 0 after 2^32
@@ -611,12 +614,22 @@ public class ApnsConnection<T extends ApnsPushNotification> {
 							log.trace("{} successfully wrote known-bad notification {}",
 									ApnsConnection.this.name, ApnsConnection.this.disconnectNotification.getSequenceNumber());
 						} else {
-							log.info("{} failed to write known-bad notification {}",
+							log.trace("{} failed to write known-bad notification {}",
 									ApnsConnection.this.name, ApnsConnection.this.disconnectNotification, writeFuture.cause());
 
-							// Try again!
-							ApnsConnection.this.disconnectNotification = null;
-							ApnsConnection.this.disconnectGracefully();
+
+							if (writeFuture.cause() instanceof IOException || ApnsConnection.this.gracefulDisconnectRetryCount > 2){
+								// failed.
+								if (log.isInfoEnabled()) {
+									log.info("Gracefully disconnect ApnsConnection failed on {} due to {}", ApnsConnection.this.name, writeFuture.cause());
+								}
+								ApnsConnection.this.disconnectImmediately();
+							} else {
+                                // Try again!
+								ApnsConnection.this.disconnectNotification = null;
+								ApnsConnection.this.gracefulDisconnectRetryCount += 1;
+								ApnsConnection.this.disconnectGracefully();
+							}
 						}
 					}
 				});
