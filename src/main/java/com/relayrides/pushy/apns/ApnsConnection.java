@@ -611,7 +611,7 @@ public class ApnsConnection<T extends ApnsPushNotification> {
 							log.trace("{} successfully wrote known-bad notification {}",
 									ApnsConnection.this.name, ApnsConnection.this.disconnectNotification.getSequenceNumber());
 						} else {
-							log.trace("{} failed to write known-bad notification {}",
+							log.info("{} failed to write known-bad notification {}",
 									ApnsConnection.this.name, ApnsConnection.this.disconnectNotification, writeFuture.cause());
 
 							// Try again!
