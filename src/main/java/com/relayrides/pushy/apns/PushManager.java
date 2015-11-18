@@ -279,7 +279,7 @@ public class PushManager<T extends ApnsPushNotification> implements ApnsConnecti
 							connection = writableConnections.poll(unwritableConnectionTimeout, TimeUnit.MILLISECONDS);
 							if (connection == null) {
 								if (log.isInfoEnabled() && !activeConnections.isEmpty()) {
-									log.info("Timeout polling for writable connections, restart all active connections");
+									log.info("Timeout polling for writable connections, restart all active connections: {}", getName());
 								}
 
 								synchronized (activeConnections) {
