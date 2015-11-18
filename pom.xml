@@ -2,14 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>cn.leancloud.pushy</groupId>
   <artifactId>pushy</artifactId>
-  <version>0.5.3-SNAPSHOT</version>
+  <version>0.5.5-SNAPSHOT</version>
   <name>Pushy</name>
   <description>A Java library for sending push notifications</description>
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
   <licenses>
     <license>
       <name>The MIT License (MIT)</name>
@@ -163,4 +158,11 @@
   	<developerConnection>scm:git:git@github.com:relayrides/pushy.git</developerConnection>
   	<url>https://github.com/relayrides/pushy</url>
   </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>snapshots</id>
+      <url>http://maven.mei.fm/nexus/content/repositories/snapshots/</url>
+    </repository>
+  </distributionManagement>
 </project>
