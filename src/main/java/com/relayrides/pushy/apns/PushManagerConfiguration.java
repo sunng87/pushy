@@ -48,6 +48,7 @@ public class PushManagerConfiguration {
 	 */
 	public PushManagerConfiguration(final PushManagerConfiguration configuration) {
 		this.concurrentConnectionCount = configuration.getConcurrentConnectionCount();
+		this.unwritableConnectionTimeout = configuration.getUnwritableConnectionTimeout();
 
 		this.connectionConfiguration = new ApnsConnectionConfiguration(configuration.getConnectionConfiguration());
 		this.feedbackConfiguration = new FeedbackConnectionConfiguration(configuration.getFeedbackConnectionConfiguration());
