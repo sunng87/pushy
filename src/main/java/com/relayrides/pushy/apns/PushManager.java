@@ -130,6 +130,8 @@ public class PushManager<T extends ApnsPushNotification> implements ApnsConnecti
 	private boolean shutDownStarted = false;
 	private boolean shutDownFinished = false;
 
+	private PushManagerInterceptor<T> interceptor;
+
 	private static final Logger log = LoggerFactory.getLogger(PushManager.class);
 
 	private static class DispatchThreadExceptionHandler<T extends ApnsPushNotification> implements UncaughtExceptionHandler {
@@ -304,7 +306,9 @@ public class PushManager<T extends ApnsPushNotification> implements ApnsConnecti
 						final T notificationToRetry = retryQueue.poll();
 
 						if (notificationToRetry != null) {
-							connection.sendNotification(notificationToRetry);
+							if (interceptor == null || interceptor.beforeSendNotification(notificationToRetry)) {
+								connection.sendNotification(notificationToRetry);
+							}
 						} else {
 							if (shutDownStarted) {
 								// We're trying to drain the retry queue before shutting down, and the retry queue is
@@ -314,7 +318,10 @@ public class PushManager<T extends ApnsPushNotification> implements ApnsConnecti
 							} else {
 								// We'll park here either until a new notification is available from the outside or until
 								// something shows up in the retry queue, at which point we'll be interrupted.
-								connection.sendNotification(queue.take());
+								final T notification = queue.take();
+								if (interceptor == null || interceptor.beforeSendNotification(notification)) {
+									connection.sendNotification(notification);
+								}
 							}
 						}
 					} catch (InterruptedException e) {
@@ -909,5 +916,13 @@ public class PushManager<T extends ApnsPushNotification> implements ApnsConnecti
 			// We always want to replace closed connections if we're running normally
 			return true;
 		}
+	}
+
+	public PushManagerInterceptor<T> getInterceptor() {
+		return interceptor;
+	}
+
+	public void setInterceptor(PushManagerInterceptor<T> interceptor) {
+		this.interceptor = interceptor;
 	}
 }
