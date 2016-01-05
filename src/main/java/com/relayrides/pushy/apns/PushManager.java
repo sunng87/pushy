@@ -282,9 +282,11 @@ public class PushManager<T extends ApnsPushNotification> implements ApnsConnecti
 									log.info("Timeout polling for writable connections, restart all active connections: {}", getName());
 								}
 
-								synchronized (activeConnections) {
-									for (ApnsConnection conn : activeConnections) {
-										conn.disconnectGracefully();
+								if (shouldReplaceClosedConnection()) {
+									synchronized (activeConnections) {
+										for (ApnsConnection conn : activeConnections) {
+											conn.disconnectGracefully();
+										}
 									}
 								}
 								continue;
